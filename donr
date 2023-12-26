@@ -1,0 +1,394 @@
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+task.wait(.5)
+--functions
+local lp = game:GetService("Players").LocalPlayer
+local tween_s = game:GetService("TweenService")
+function teleport(pos)
+    if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = lp.Character.HumanoidRootPart
+        local currentPos = rootPart.Position
+        local distance = (pos - currentPos).Magnitude
+        
+        local maxSpeed = 0.1 -- Adjust this value to set the maximum speed (for closest distance)
+        local minSpeed = 100 -- Adjust this value to set the minimum speed (for farthest distance)
+        
+        local speed = minSpeed + (maxSpeed - minSpeed) * (1 - (distance / 1000))
+        
+        if speed < minSpeed then
+            speed = minSpeed
+        elseif speed > maxSpeed then
+            speed = maxSpeed
+        end
+        
+        local tweeninfo = TweenInfo.new(distance / speed, Enum.EasingStyle.Linear)
+        
+        local cf = CFrame.new(pos)
+        local a = tween_s:Create(rootPart, tweeninfo, {CFrame = cf})
+        a:Play()
+        a.Completed:Wait()
+    end
+end
+--Build!
+workspace.Map.System.KillBrick.TouchInterest:Destroy()
+
+for i,v in pairs(workspace.Map.VampireBase.House:GetDescendants()) do
+    if v.Name == "TouchInterest" and v.Parent.Name == "KillHuman" then
+        v:Destroy()
+    end
+end
+
+local p = Instance.new("Part")
+p.Parent = workspace
+p.Anchored = true
+p.CFrame = CFrame.new(-135.204269, -29, -11.8437042, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+p.Size = Vector3.new(63,2,75)
+--variables
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
+local w = library:CreateWindow("Animations") -- Creates the window
+local b = w:CreateFolder("Animations") -- Creates the folder(U will put here your buttons,etc)
+
+local t = library:CreateWindow("Tween & Extra")
+local t1 = t:CreateFolder("Tween")
+
+local w1 = library:CreateWindow("Kill Method")
+local b1 = w1:CreateFolder("Manual")
+local b2 = w1:CreateFolder("Auto-Kill")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local char = lp.Character
+local root = char.HumanoidRootPart
+local human = char.Humanoid
+
+local function teleportPlayers(name1)
+    local playersToTeleport = {}
+
+    local function collectPlayers()
+        playersToTeleport = {}  -- Clear the table before populating it again
+        local players = Players:GetPlayers()
+        for _, player in ipairs(players) do
+            if player.Team.Name == name1 and player ~= lp and not player:IsFriendsWith(lp.UserId) then
+                table.insert(playersToTeleport, player)
+            end
+        end
+    end
+
+    local function getNextPlayer()
+        if #playersToTeleport > 0 then
+            return table.remove(playersToTeleport, 1)
+        end
+        return nil
+    end
+
+    local function teleportPlayer(player)
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            local con100
+
+            con100 = RunService.Heartbeat:Connect(function()
+                player.Character.Head.Position = lp.Character.Hitbox.Position
+                player.Character.Head.Anchored = true
+                if humanoid.Health == 1 or humanoid.Health == 0 or player.Team.Name ~= name1 then
+                    player.Character.Head.Position = player.Character:FindFirstChild("UpperTorso").Position +Vector3.new(0,1,0)
+                    player.Character.Head.Anchored = false
+                    con100:Disconnect()
+
+                    local nextPlayer = getNextPlayer()
+                    if nextPlayer then
+                        teleportPlayer(nextPlayer)
+                    end
+                end
+            end)
+        end
+    end
+
+    collectPlayers()
+
+    local firstPlayer = getNextPlayer()
+    if firstPlayer then
+        teleportPlayer(firstPlayer)
+    end
+end
+
+bangAnim = Instance.new("Animation")
+bangAnim.AnimationId = "rbxassetid://5918726674"
+track = lp.Character:FindFirstChildOfClass('Humanoid'):LoadAnimation(bangAnim)
+
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://754656200"
+local trackArm = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+
+lp.CharacterAdded:Connect(function() -- Add Bang Track
+    print('Respawned')
+    wait(.2)
+    bangAnim = Instance.new("Animation")
+    bangAnim.AnimationId = "rbxassetid://5918726674"
+
+    Anim = Instance.new("Animation")
+    Anim.AnimationId = "rbxassetid://754656200"
+
+    track = lp.Character:FindFirstChildOfClass('Humanoid'):LoadAnimation(bangAnim)
+    trackArm = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+
+    char = lp.Character
+    root = lp.Character.HumanoidRootPart
+    human = char.Humanoid
+end)
+
+local toggledance = false
+b:Bind("Bind",Enum.KeyCode.E,function()
+    toggledance = not toggledance
+
+    if toggledance then
+        track:Play(.1,1,1)
+    else
+        track:Stop()
+        bangAnim:Destroy()
+    end
+end)
+FlingArmsACTIVE = false
+b:Bind("Swing Arms",Enum.KeyCode.R,function()
+    FlingArmsACTIVE = not FlingArmsACTIVE
+    if FlingArmsACTIVE then
+        while wait() do
+         if trackArm.IsPlaying == false then
+            if FlingArmsACTIVE then
+                trackArm:Play(.1, 1, 10)
+            end
+         end
+        end
+    else
+        track:Stop()
+    end
+end)
+
+b:Box("plr Name","string",function(value)
+    animplr = value
+end)
+local headtoggle = false
+b:Button("Head",function()
+    headtoggle = not headtoggle
+
+    if headtoggle then
+        headcon = RunService.Heartbeat:Connect(function()
+            local offset = CFrame.new(0,.7,-1)
+            otherRoot = game.Players:FindFirstChild(animplr).Character.Head
+            root.CFrame = otherRoot.CFrame * offset * CFrame.Angles(0,math.rad(180),0)
+    end)
+    else
+        headcon:Disconnect()
+    end
+
+end)
+local upsidedownheadtoggle = false
+b:Button("Upside-down Head",function()
+    upsidedownheadtoggle = not upsidedownheadtoggle
+
+    if upsidedownheadtoggle then
+        downheadcon = RunService.Heartbeat:Connect(function()
+        local offset = CFrame.new(0,-.7,-1)
+        otherRoot = game.Players:FindFirstChild(animplr).Character.Head
+        root.CFrame = otherRoot.CFrame * offset * CFrame.Angles(0,math.rad(180),math.rad(180)) 
+    end)
+    else
+        downheadcon:Disconnect()
+    end
+end)
+local laytoggle = false
+b:Button("Lay",function()
+    laytoggle = not laytoggle
+    if laytoggle then
+        human.Sit = true
+        task.wait(.1)
+        root.CFrame = root.CFrame * CFrame.Angles(math.pi * .5, 0, 0)
+        for _, v in ipairs(human:GetPlayingAnimationTracks()) do
+            v:Stop()
+        end
+        task.wait(.2)
+        root.Anchored = true
+    else
+        root.Anchored = false
+        wait(.1)
+        human.Jump = true
+    end
+end)
+--Extra
+t1:Toggle("Destroy",function(bool)
+    destroytoggle = bool
+    if destroytoggle then
+        destroycon = RunService.Heartbeat:Connect(function()
+            for i,v in pairs(workspace.Map.System.Maps:GetDescendants()) do
+                if v.Name == "TouchInterest" and v.Parent.Name == "SilverIngot" then
+                    v:Destroy()
+                end
+            end
+
+            for i,v in pairs(workspace.Map.System.Maps:GetDescendants()) do
+                if v.Name == "TouchInterest" and v.Parent.Name == "Silver" then
+                    v:Destroy()
+                end
+            end
+
+            for i,v in pairs(workspace.Map:GetDescendants()) do
+                if v.Name == "TouchInterest" and v.Parent.Name == "Water" then
+                    v:Destroy()
+                end
+            end
+        end)
+    else
+        destroycon:Disconnect()
+    end
+end)
+--TweenService
+t1:Dropdown("Dropdown",{"Bat","Knife","Gun","Juice","Umberlla"},true,function(value) --true/false, replaces the current title "Dropdown" with the option that t
+    selectedtp = value
+end)
+
+t1:Button("Tween to",function()
+    orgpos = root.Position
+    if selectedtp == "Bat" then
+        teleport(workspace.Map.HumanBase.Vendor.BatCollection.HitBox.Position)
+        teleport(orgpos)
+    elseif selectedtp == "Knife" then
+        local knife = workspace.Map.System.Maps:FindFirstChild("Silver Mine(blueprint and redo the cave)")
+        if knife and knife:FindFirstChild("KnifeCollection") then
+            teleport(knife.KnifeCollection.Handle.Position)
+            teleport(orgpos)
+        end
+    elseif selectedtp == "Gun" then
+        local gunmap = workspace.Map.System.Maps:FindFirstChild("Floodplain")
+        if gunmap and gunmap:FindFirstChild("RevolverCollection") then
+            teleport(gunmap.RevolverCollection.Handle.Position)
+            teleport(orgpos)
+        end
+    elseif selectedtp == "Juice" then
+        local factory = workspace.Map.System.Maps:FindFirstChild("Strawberry Fields & Juicery")
+        if factory and factory:FindFirstChild("StrawberryJuiceCollection") then
+            teleport(factory.StrawberryJuiceCollection.Handle.Position)
+            repeat task.wait()
+
+            until game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Strawberry Juice")
+            lp.Backpack["Strawberry Juice"].Parent = char
+            wait(.1)
+            teleport(workspace.Map.System.Maps["Strawberry Fields & Juicery"].ButtonSystem.StrawberryJuice.Position + Vector3.new(-1.5,0,1))
+            wait(.1)
+            teleport(orgpos)
+        end
+    elseif selectedtp == "Umberlla" then
+        local umberlla = workspace.Map.VampireBase.UmbrellaCollection.Handle
+        local orgpos = root.Position
+        teleport(root.Position +Vector3.new(0,-20,0))
+        teleport(umberlla.Position + Vector3.new(0,-20,0))
+        teleport(umberlla.Position+Vector3.new(0,5,0))
+        fireclickdetector(workspace.Map.VampireBase.UmbrellaCollection.ClickDetector)
+        wait(.5)
+        teleport(umberlla.Position + Vector3.new(0,-20,0))
+        teleport(orgpos +Vector3.new(0,-20,0))
+        teleport(orgpos+Vector3.new(0,30,0))
+    end
+end)
+
+t1:Button("Enlarge Item",function()
+    print('Clicked')
+    local stake1 = char:FindFirstChild("Stake")
+    if stake1 then
+        local stake = stake1:FindFirstChild("BodyAttach")
+        if stake.Transparency == 0 then
+            stake.Size = Vector3.new(10,30,20)
+            stake.Transparency = 0.8
+        else
+            stake.Size = Vector3.new(0.34392881393432617, 3.806408643722534, 0.34381791949272156)
+            stake.Transparency = 0
+        end
+    end
+
+    local knife2 = char:FindFirstChild("Knife")
+    if knife2 then
+        local knife1 = knife2:FindFirstChild("Handle")
+        if knife1.Transparency == 0 then
+            ht = Instance.new("Highlight")
+            knife1.Size = Vector3.new(10,30,20)
+            knife1.Transparency = 0.7
+            ht.Parent = knife1
+            ht.FillColor = Color3.fromRGB(0,255,0)
+            ht.DepthMode = "Occluded"
+        else
+            knife1.Size = Vector3.new(0.20000003278255463, 2.000000238418579, 2)
+            knife1.Transparency = 0
+            ht:Destroy()
+        end
+    end
+end)
+
+-- Kill one
+b1:Toggle("Auto Punch",function(bool)
+    togglekill = bool
+    if togglekill then
+        kill()
+        char.Hitbox.Transparency = 0.8
+        ht1 = Instance.new("Highlight")
+        ht1.Parent = char.Hitbox
+        ht1.DepthMode = "Occluded"
+        ht1.OutlineTransparency = 1
+    else
+        ht1:Destroy()
+        char.Hitbox.Transparency = 1
+    end
+end)
+
+b1:Button("Change Teams",function()
+    if lp.Team.Name == "Human" then
+        root.CFrame = CFrame.new(workspace.Map.JoinVampires.TeamChangePart.Position)
+    else
+        root.CFrame = CFrame.new(workspace.Map.JoinHumans.TeamChangePart.Position)
+    end
+end)
+
+b2:Box("plr Name","string",function(value)
+    unluck = value
+end)
+
+b2:Toggle("Kill",function(bool)
+    autokilltoggle = bool
+    if autokilltoggle then
+        kill()
+        checkteam()
+        con = RunService.Heartbeat:Connect(function()
+            oth = Players:FindFirstChild(unluck).Character.Head
+            oth.Anchored = true
+            oth.Position = char.Hitbox.Position
+        end)
+    else
+        con:Disconnect()
+        wait(.1)
+        oth.Position = Players:FindFirstChild(unluck).Character.UpperTorso.Position + Vector3.new(0,1.5,0)
+        oth.Anchored = false
+    end
+end)
+
+b2:Button("Teleport Hooman",function()
+    teleportPlayers("Human")
+end)
+
+b2:Button("Teleport Vamp",function()
+    teleportPlayers("Vampire")
+end)
+--spawn fucking functions
+function checkteam()
+    spawn(function()
+        while autokilltoggle do task.wait()
+            if Players:FindFirstChild(unluck).Team.Name == "Vampire" and lp.Team.Name == "Vampire" then
+                root.CFrame = CFrame.new(workspace.Map.JoinHumans.TeamChangePart.Position)
+            elseif Players:FindFirstChild(unluck).Team.Name == "Human" and lp.Team.Name == "Human" then
+                root.CFrame = CFrame.new(workspace.Map.JoinVampires.TeamChangePart.Position)
+            end
+        end
+    end)
+end
+
+function kill()
+    spawn(function()
+        while togglekill or autokilltoggle do task.wait()
+            game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("VampireEvent"):FireServer("Punch")
+        end
+    end)
+end
