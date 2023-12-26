@@ -1,3 +1,4 @@
+print('It worked')
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 task.wait(.5)
 --functions
